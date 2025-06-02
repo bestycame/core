@@ -176,13 +176,26 @@ jobs:
     name: Build wheels ${{ matrix.abi }} for ${{ matrix.arch }}
     if: github.repository_owner == 'home-assistant'
     needs: init
-    runs-on: ubuntu-24.04-arm
+    runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        abi: ["cp313"]
-        arch: ["aarch64"]
-        # arch: ${{ fromJson(needs.init.outputs.architectures) }}
+        include:
+          - os: ubuntu-latest
+            arch: amd64
+            abi: cp313
+          - os: ubuntu-latest
+            arch: i386
+            abi: cp313
+          - os: ubuntu-24.04-arm
+            arch: aarch64
+            abi: cp313
+          - os: ubuntu-24.04-arm
+            arch: armv7
+            abi: cp313
+          - os: ubuntu-latest
+            arch: armhf
+            abi: cp313
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v4.2.2
@@ -222,9 +235,10 @@ jobs:
       - name: Create requirements file for custom build
         run: |
           touch requirements_custom.txt
-          echo "grpcio==1.72.0" >> requirements_custom.txt
-          echo "grpcio-status==1.72.0" >> requirements_custom.txt
-          echo "grpcio-reflection==1.72.0" >> requirements_custom.txt
+          echo "protobuf==6.30.2" >> requirements_custom.txt
+          echo "grpcio==1.72.1" >> requirements_custom.txt
+          echo "grpcio-status==1.72.1" >> requirements_custom.txt
+          echo "grpcio-reflection==1.72.1" >> requirements_custom.txt
 
       - name: Build wheels (custom)
         uses: cdce8p/wheels@master
